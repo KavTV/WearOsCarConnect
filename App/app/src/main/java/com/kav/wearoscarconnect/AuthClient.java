@@ -8,6 +8,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 
 import org.json.JSONObject;
 
@@ -27,16 +28,14 @@ public class AuthClient {
 
 
     public void getAccessTokenFromCredentials(String username, String password){
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.POST, "https://sso.ci.ford.com/oidc/endpoint/default/token", null, new Response.Listener<JSONObject>() {
-
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, "https://sso.ci.ford.com/oidc/endpoint/default/token",
+                new Response.Listener<String>() {
                     @Override
-                    public void onResponse(JSONObject response) {
-
+                    public void onResponse(String response) {
                         Log.d("response123",response.toString());
                     }
-                }, new Response.ErrorListener() {
-
+                },
+                new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         try {
@@ -47,8 +46,7 @@ public class AuthClient {
                         }
                         Log.d("response123","woop");
                     }
-                }) {
-
+                }){
             @Override
             public Map getHeaders() throws AuthFailureError{
                 HashMap headers = new HashMap();
@@ -61,19 +59,21 @@ public class AuthClient {
             }
             @Override
             public String getBodyContentType(){
-                return "application/x-www-form-urlencoded; charset=UTF-8";
+                return "application/x-www-form-urlencoded";
             }
             @Override
-            protected Map<String,String> getParams() throws AuthFailureError{
-                Map<String,String> params = new HashMap<String,String>();
+            protected Map<String,String> getParams(){
+                Map<String, String> params = new HashMap<String, String>();
                 params.put("client_id", clientId);
                 params.put("grant_type", "password");
                 params.put("username", username);
                 params.put("password", password);
                 return params;
             }
+
         };
-        NetworkRequests.getInstance(ctx).addToRequestQueue(jsonObjectRequest);
+
+        NetworkRequests.getInstance(ctx).addToRequestQueue(stringRequest);
     }
 
 }
