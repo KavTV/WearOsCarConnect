@@ -14,6 +14,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
+import com.kav.wearoscarconnect.interfaces.VolleyCallBack;
 import com.kav.wearoscarconnect.models.AccessToken;
 
 import org.json.JSONObject;
@@ -39,12 +40,11 @@ public class AuthClient extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
 
 
-        // If we get killed, after returning from here, restart
         return START_NOT_STICKY;
     }
 
 
-    public void getAccessTokenFromCredentials(String username, String password, AccessToken accessToken) {
+    public void getAccessTokenFromCredentials(String username, String password, VolleyCallBack volleyCallBack) {
 
         //This request does not work when using jsonobjectrequest
         StringRequest stringRequest = new StringRequest(Request.Method.POST, "https://sso.ci.ford.com/oidc/endpoint/default/token",
@@ -58,7 +58,7 @@ public class AuthClient extends Service {
                             Log.d("response123", token);
 
                             //If everything was successful, create a new web request to get the token we can use for the car commands.
-                            getCarAccessToken(token, accessToken);
+                            getCarAccessToken(token, volleyCallBack);
 
                         } catch (Exception e) {
                             Log.d("response123", "Could not convert to json");
@@ -106,7 +106,7 @@ public class AuthClient extends Service {
         NetworkRequests.getInstance(ctx).addToRequestQueue(stringRequest);
     }
 
-    private void getCarAccessToken(String token, AccessToken accessToken) {
+    private void getCarAccessToken(String token, VolleyCallBack volleyCallBack) {
         Map<String, String> params = new HashMap<String, String>();
         params.put("code", token);
 
@@ -117,19 +117,10 @@ public class AuthClient extends Service {
                     public void onResponse(JSONObject response) {
 
                         try {
-
-                            String newToken = response.getString("access_token");
-                            int expiresAt = Integer.parseInt(response.getString("expires_in"));
-                            String refreshToken = response.getString("refresh_token");
-                            Log.d("response123", newToken);
-
-                            //Set the new token values.
-                            accessToken.value = newToken;
-                            accessToken.expiresAt = accessToken.findExpireDate(expiresAt);
-                            accessToken.refreshToken = refreshToken;
-                            Log.d("response123", accessToken.expiresAt.getTime().toString());
                             currentState = 2;
 
+                            //Return the response
+                            volleyCallBack.onSuccess(response);
 
                         } catch (Exception e) {
                             Log.d("response123", "Could not convert to json");

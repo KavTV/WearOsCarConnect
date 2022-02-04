@@ -8,6 +8,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.kav.wearoscarconnect.interfaces.VolleyCallBack;
 
 import org.json.JSONObject;
 
@@ -23,7 +24,7 @@ public class ApiRequest {
         headers = getHeaders(accessToken);
     }
 
-    public void request(String url, int method){
+    public void request(String url, int method, final VolleyCallBack callBack){
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (method, url, null, new Response.Listener<JSONObject>() {
 
@@ -31,6 +32,7 @@ public class ApiRequest {
                     public void onResponse(JSONObject response) {
 
                         Log.d("response123",response.toString());
+                        callBack.onSuccess(response);
                     }
                 }, new Response.ErrorListener() {
 
