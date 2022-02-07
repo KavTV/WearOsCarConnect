@@ -69,6 +69,7 @@ public class AuthClient extends Service {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        volleyCallBack.onFail(error);
                         try {
                             String body = new String(error.networkResponse.data, "UTF-8");
                             Log.d("response123", body);
@@ -130,6 +131,7 @@ public class AuthClient extends Service {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        volleyCallBack.onFail(error);
                         try {
                             String body = new String(error.networkResponse.data, "UTF-8");
                             Log.d("response123", body);

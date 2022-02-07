@@ -2,6 +2,7 @@ package com.kav.wearoscarconnect;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Vibrator;
 
 import androidx.annotation.Nullable;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -64,6 +65,31 @@ public class InformationActivity extends Activity implements CarListener {
 
     @Override
     public void onStatusChanged(FordVehicleStatus obj) {
+
+    }
+
+    @Override
+    public void onDetails() {
+
+    }
+
+    @Override
+    public void onStart(boolean started) {
+
+    }
+
+    @Override
+    public void onStop(boolean stopped) {
+
+    }
+
+    @Override
+    public void onLock(boolean locked) {
+
+    }
+
+    @Override
+    public void onUnlock(boolean unlocked) {
 
     }
 }
