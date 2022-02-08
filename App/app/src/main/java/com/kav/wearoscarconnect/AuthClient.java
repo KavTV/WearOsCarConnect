@@ -23,7 +23,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AuthClient extends Service {
+public class AuthClient {
     public int currentState = 0;
 
     private Context ctx;
@@ -36,12 +36,12 @@ public class AuthClient extends Service {
         this.region = region;
     }
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-
-
-        return START_NOT_STICKY;
-    }
+//    @Override
+//    public int onStartCommand(Intent intent, int flags, int startId) {
+//
+//
+//        return START_NOT_STICKY;
+//    }
 
 
     public void getAccessTokenFromCredentials(String username, String password, VolleyCallBack volleyCallBack) {
@@ -158,6 +158,58 @@ public class AuthClient extends Service {
 
     }
 
+    public void getAccessTokenFromRefreshToken(String refreshToken, VolleyCallBack volleyCallBack){
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("refresh_token", refreshToken);
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.PUT, "https://api.mps.ford.com/api/oauth2/v1/refresh", new JSONObject(params), new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        try {
+                            currentState = 2;
+
+                            //Return the response to callback
+                            volleyCallBack.onSuccess(response);
+
+                        } catch (Exception e) {
+                            Log.d("response123", "Could not convert to json");
+                            volleyCallBack.onFail(new VolleyError());
+                        }
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        volleyCallBack.onFail(error);
+                        try {
+                            String body = new String(error.networkResponse.data, "UTF-8");
+                            Log.d("response123", body);
+                        } catch (Exception e) {
+                            // exception
+                            Log.d("response123", "Could not translate body to json");
+                        }
+                    }
+                }) {
+            @Override
+            public Map getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = getReqeustHeaders();
+                headers.put("Content-Type", "application/json");
+                headers.put("Application-Id", "1E8C7794-FF5F-49BC-9596-A1E0C86C5B19");
+                return headers;
+            }
+            @Override
+            public String getBodyContentType() {
+                return "application/json";
+            }
+
+        };
+        NetworkRequests.getInstance(ctx).addToRequestQueue(jsonObjectRequest);
+
+    }
+
     public HashMap<String, String> getReqeustHeaders() {
         HashMap<String, String> headers = new HashMap<String, String>();
         headers.put("Accept", "*/*");
@@ -167,9 +219,4 @@ public class AuthClient extends Service {
         return headers;
     }
 
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
 }

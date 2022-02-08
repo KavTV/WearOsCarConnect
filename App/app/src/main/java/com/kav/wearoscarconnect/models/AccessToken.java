@@ -1,6 +1,8 @@
 package com.kav.wearoscarconnect.models;
 
 
+import org.json.JSONObject;
+
 import java.util.Calendar;
 
 public class AccessToken {
@@ -13,6 +15,11 @@ public class AccessToken {
         this.value = value;
         this.refreshToken = refreshToken;
         this.expiresAt = findExpireDate(expireSeconds);
+    }
+    public AccessToken(String value, Calendar expireSeconds, String refreshToken){
+        this.value = value;
+        this.refreshToken = refreshToken;
+        this.expiresAt = expireSeconds;
     }
 
     public Calendar findExpireDate(int expireSeconds){
@@ -34,6 +41,25 @@ public class AccessToken {
             return true;
         }
         return false;
+    }
+
+    public boolean setTokenFromJson(JSONObject json){
+        try {
+            String newToken = json.getString("access_token");
+            int expiresAt = json.getInt("expires_in");
+            String refreshToken = json.getString("refresh_token");
+
+
+            //Set the new token values.
+            this.value = newToken;
+            this.expiresAt = findExpireDate(expiresAt);
+            this.refreshToken = refreshToken;
+
+            return true;
+        }
+        catch (Exception e){
+            return false;
+        }
     }
 
 

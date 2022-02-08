@@ -9,6 +9,8 @@ import com.android.volley.VolleyError;
 import com.google.gson.Gson;
 import com.kav.wearoscarconnect.ApiRequest;
 import com.kav.wearoscarconnect.AuthClient;
+import com.kav.wearoscarconnect.DisplayMessageHandler;
+import com.kav.wearoscarconnect.SavedSettings;
 import com.kav.wearoscarconnect.fordmodels.FordVehicleStatus;
 import com.kav.wearoscarconnect.interfaces.Car;
 import com.kav.wearoscarconnect.interfaces.CarListener;
@@ -20,73 +22,131 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+/**
+ * Representation of a ford car with its implementation of the car interface.
+ */
 public class FordCar implements Car {
 
     ApiRequest apiRequest;
     AuthClient authClient;
-    AccessToken accessToken = new AccessToken();
+    AccessToken accessToken;
     String vin;
     Context ctx;
     boolean setupDone = false;
     ArrayList<CarListener> carListeners = new ArrayList<CarListener>();
 
-    public FordCar(Context ctx, String vin, String username, String password){
+    public FordCar(Context ctx, String vin, AccessToken ac) {
         this.ctx = ctx;
         this.vin = vin;
-        init(username, password);
+        accessToken = ac;
+//        this.authClient = new AuthClient(ctx, SavedSettings.clientId, SavedSettings.region);
+        apiRequest = new ApiRequest(ctx, ac);
     }
 
-    private void init(String username, String password){
+    private void init(String username, String password) {
         //Client id is always the same
-        this.authClient = new AuthClient(ctx,"9fb503e0-715b-47e8-adfd-ad4b7770f73b","1E8C7794-FF5F-49BC-9596-A1E0C86C5B19");
-        authClient.getAccessTokenFromCredentials(username, password, new VolleyCallBack() {
+//        this.authClient = new AuthClient(ctx, SavedSettings.clientId, SavedSettings.region);
+//        authClient.getAccessTokenFromCredentials(username, password, new VolleyCallBack() {
+//            @Override
+//            public void onSuccess(JSONObject json) {
+//                try {
+//                    String newToken = json.getString("access_token");
+//                    int expiresAt = Integer.parseInt(json.getString("expires_in"));
+//                    String refreshToken = json.getString("refresh_token");
+//
+//                    //Set the new token values.
+//                    accessToken.value = newToken;
+//                    accessToken.expiresAt = accessToken.findExpireDate(expiresAt);
+//                    accessToken.refreshToken = refreshToken;
+//
+//                    apiRequest = new ApiRequest(ctx, newToken);
+//                    setupDone = true;
+//
+//                } catch (Exception e) {
+//                    setupDone = false;
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onFail(VolleyError error) {
+//
+//            }
+//        });
+    }
+
+    private void regainAccess(VolleyCallBack callBack) {
+        //If the user gets the access denied message, we just need to get a new access token.
+        authClient.getAccessTokenFromRefreshToken(accessToken.refreshToken, new VolleyCallBack() {
             @Override
             public void onSuccess(JSONObject json) {
-                try {
-                    String newToken = json.getString("access_token");
-                    int expiresAt = Integer.parseInt(json.getString("expires_in"));
-                    String refreshToken = json.getString("refresh_token");
 
-                    //Set the new token values.
-                    accessToken.value = newToken;
-                    accessToken.expiresAt = accessToken.findExpireDate(expiresAt);
-                    accessToken.refreshToken = refreshToken;
+                boolean acSuccess = accessToken.setTokenFromJson(json);
 
-                    apiRequest = new ApiRequest(ctx,newToken);
-                    setupDone = true;
-                    Log.d("response123", "DONE");
+                //If the token was successfully set from the json, then tell it went well.
+                if (acSuccess) {
+                    callBack.onSuccess(json);
+                } else {
+                    //If token could not be set, do the same as in onFail
+                    onFail(new VolleyError());
                 }
-                catch (Exception e){
-                    setupDone = false;
-                }
-
             }
 
             @Override
             public void onFail(VolleyError error) {
-
+                DisplayMessageHandler.displayToastMessage("Could not get new token");
+                callBack.onFail(error);
             }
         });
+    }
+
+    /**
+     * Get response status, oven tho the reqeuest returns 200 OK
+     * The response could still be 401 or 400 if user is not allowed to get info about that vehicle
+     *
+     * @param json the json request
+     * @return true if response code is bad, 400,401
+     */
+    private boolean checkBadResponse(JSONObject json) {
+        try {
+            //Get response status, oven tho the reqeuest returns 200 OK
+            //The response could still be 401 or 400 if user is not allowed to get info about that vehicle
+            int responseStatus = Integer.parseInt(json.getString("status"));
+
+            if (responseStatus == 400 || responseStatus == 401) {
+                DisplayMessageHandler.displayToastMessage("No access to vehicle (VIN)");
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            return true;
+        }
     }
 
     @Override
     public JSONObject status() {
 
-        apiRequest.request("https://usapi.cv.ford.com/api/vehicles/v4/"+vin+"/status?lrdt=01-01-1970%2000:00:00", Request.Method.GET, new VolleyCallBack() {
+        apiRequest.request("https://usapi.cv.ford.com/api/vehicles/v4/" + vin + "/status?lrdt=01-01-1970%2000:00:00", Request.Method.GET, new VolleyCallBack() {
             @Override
             public void onSuccess(JSONObject json) {
-                Gson gson = new Gson();
-                FordVehicleStatus status = gson.fromJson(json.toString(), FordVehicleStatus.class);
 
+                //If we did not get a bad response then proceed getting status.
+                if (!checkBadResponse(json)) {
+                    Gson gson = new Gson();
+                    FordVehicleStatus status = gson.fromJson(json.toString(), FordVehicleStatus.class);
 
-                for (CarListener listener : carListeners) {
-                    listener.onStatusChanged(status);
+                    Log.d("response123", "SUCCEEDED STATUS");
+
+                    for (CarListener listener : carListeners) {
+                        listener.onStatusChanged(status);
+                    }
                 }
 
             }
 
             @Override
             public void onFail(VolleyError error) {
+                Log.d("response123", error.toString());
 
             }
         });
@@ -99,29 +159,44 @@ public class FordCar implements Car {
     }
 
     @Override
-    public boolean start() {
-        return false;
+    public void start() {
+        return ;
     }
 
     @Override
-    public boolean stop() {
-        return false;
+    public void stop() {
+        return ;
     }
 
     @Override
-    public boolean lock() {
-        return false;
+    public void lock() {
+        apiRequest.vehicleActionRequest(vin, "doors/lock", Request.Method.PUT, new VolleyCallBack() {
+            @Override
+            public void onSuccess(JSONObject json) {
+                for (CarListener listener : carListeners) {
+                    listener.onLock(true);
+                }
+            }
+
+            @Override
+            public void onFail(VolleyError error) {
+                for (CarListener listener : carListeners) {
+                    listener.onLock(false);
+                }
+            }
+        });
     }
 
     @Override
-    public boolean unlock() {
-        return false;
+    public void unlock() {
+        return;
     }
 
-    public void addListener(CarListener listener){
+    public void addListener(CarListener listener) {
         carListeners.add(listener);
     }
-    public void removeListener(CarListener listener){
+
+    public void removeListener(CarListener listener) {
         carListeners.remove(listener);
     }
 }

@@ -17,14 +17,15 @@ import androidx.annotation.Nullable;
 
 import com.kav.wearoscarconnect.fordmodels.FordVehicleStatus;
 import com.kav.wearoscarconnect.interfaces.CarListener;
+import com.kav.wearoscarconnect.models.AccessToken;
 import com.kav.wearoscarconnect.models.FordCar;
+
+import java.util.Calendar;
 
 public class LoggedInActivity extends Activity implements CarListener {
 
     ImageButton unlockButton;
     ImageButton lockButton;
-
-    Vibrator vibrator;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -32,12 +33,12 @@ public class LoggedInActivity extends Activity implements CarListener {
 
         setContentView(R.layout.activity_loggedin);
 
-        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-
         Bundle extras = getIntent().getExtras();
 
+        AccessToken ac = new AccessToken(extras.getString("accessTokenValue"),(Calendar)extras.getParcelable("accessTokenExpire"),extras.getString("accessTokenRefresh"));
+
         //Since we only got one brand of car, we will just create it here.
-        SelectedCar.car = new FordCar(this, extras.getString("vin"), extras.getString("username"), extras.getString("password"));
+        SelectedCar.car = new FordCar(this, extras.getString("vin"),ac);
         SelectedCar.car.addListener(this);
 
         Button statusButton = findViewById(R.id.statusButton);
@@ -73,16 +74,15 @@ public class LoggedInActivity extends Activity implements CarListener {
     }
 
     public void unlockCar(){
-        vibrateWithMessage("something");
+        SelectedCar.car.status();
 //        SelectedCar.car.unlock();
     }
     public void lockCar(){
-//        SelectedCar.car.lock();
+        SelectedCar.car.lock();
     }
 
     private void vibrateWithMessage(String message){
-        vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK));
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        DisplayMessageHandler.displayToastMessageVibration(message);
     }
 
 
@@ -90,7 +90,7 @@ public class LoggedInActivity extends Activity implements CarListener {
     @Override
     public void onStatusChanged(FordVehicleStatus obj) {
         //TODO: Could change the image to a car with doors open if car is unlocked, etc.
-
+        DisplayMessageHandler.displayToastMessage("status changed");
     }
 
     @Override
