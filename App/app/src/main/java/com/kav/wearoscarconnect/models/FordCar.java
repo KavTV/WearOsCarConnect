@@ -28,7 +28,6 @@ import java.util.ArrayList;
 public class FordCar implements Car {
 
     ApiRequest apiRequest;
-    AuthClient authClient;
     AccessToken accessToken;
     String vin;
     Context ctx;
@@ -39,69 +38,11 @@ public class FordCar implements Car {
         this.ctx = ctx;
         this.vin = vin;
         accessToken = ac;
-//        this.authClient = new AuthClient(ctx, SavedSettings.clientId, SavedSettings.region);
         apiRequest = new ApiRequest(ctx, ac);
     }
 
-    private void init(String username, String password) {
-        //Client id is always the same
-//        this.authClient = new AuthClient(ctx, SavedSettings.clientId, SavedSettings.region);
-//        authClient.getAccessTokenFromCredentials(username, password, new VolleyCallBack() {
-//            @Override
-//            public void onSuccess(JSONObject json) {
-//                try {
-//                    String newToken = json.getString("access_token");
-//                    int expiresAt = Integer.parseInt(json.getString("expires_in"));
-//                    String refreshToken = json.getString("refresh_token");
-//
-//                    //Set the new token values.
-//                    accessToken.value = newToken;
-//                    accessToken.expiresAt = accessToken.findExpireDate(expiresAt);
-//                    accessToken.refreshToken = refreshToken;
-//
-//                    apiRequest = new ApiRequest(ctx, newToken);
-//                    setupDone = true;
-//
-//                } catch (Exception e) {
-//                    setupDone = false;
-//                }
-//
-//            }
-//
-//            @Override
-//            public void onFail(VolleyError error) {
-//
-//            }
-//        });
-    }
-
-    private void regainAccess(VolleyCallBack callBack) {
-        //If the user gets the access denied message, we just need to get a new access token.
-        authClient.getAccessTokenFromRefreshToken(accessToken.refreshToken, new VolleyCallBack() {
-            @Override
-            public void onSuccess(JSONObject json) {
-
-                boolean acSuccess = accessToken.setTokenFromJson(json);
-
-                //If the token was successfully set from the json, then tell it went well.
-                if (acSuccess) {
-                    callBack.onSuccess(json);
-                } else {
-                    //If token could not be set, do the same as in onFail
-                    onFail(new VolleyError());
-                }
-            }
-
-            @Override
-            public void onFail(VolleyError error) {
-                DisplayMessageHandler.displayToastMessage("Could not get new token");
-                callBack.onFail(error);
-            }
-        });
-    }
-
     /**
-     * Get response status, oven tho the reqeuest returns 200 OK
+     * Get response status, even tho the request returns 200 OK
      * The response could still be 401 or 400 if user is not allowed to get info about that vehicle
      *
      * @param json the json request
@@ -124,7 +65,7 @@ public class FordCar implements Car {
     }
 
     @Override
-    public JSONObject status() {
+    public void status() {
 
         apiRequest.request("https://usapi.cv.ford.com/api/vehicles/v4/" + vin + "/status?lrdt=01-01-1970%2000:00:00", Request.Method.GET, new VolleyCallBack() {
             @Override
@@ -150,22 +91,64 @@ public class FordCar implements Car {
 
             }
         });
-        return null;
     }
 
     @Override
-    public JSONObject details() {
-        return null;
+    public void statusRefresh() {
+        apiRequest.request("https://usapi.cv.ford.com/api/vehicles/v2/" + vin + "/status", Request.Method.PUT, new VolleyCallBack() {
+            @Override
+            public void onSuccess(JSONObject json) {
+
+            }
+
+            @Override
+            public void onFail(VolleyError error) {
+
+            }
+        });
+    }
+
+    @Override
+    public void details() {
+
     }
 
     @Override
     public void start() {
-        return ;
+        apiRequest.vehicleActionRequest(vin, "engine/start", Request.Method.PUT, new VolleyCallBack() {
+            @Override
+            public void onSuccess(JSONObject json) {
+                for (CarListener listener : carListeners) {
+                    listener.onStart(true);
+                }
+            }
+
+            @Override
+            public void onFail(VolleyError error) {
+                for (CarListener listener : carListeners) {
+                    listener.onStart(false);
+                }
+            }
+        });
     }
 
     @Override
     public void stop() {
-        return ;
+        apiRequest.vehicleActionRequest(vin, "engine/start", Request.Method.DELETE, new VolleyCallBack() {
+            @Override
+            public void onSuccess(JSONObject json) {
+                for (CarListener listener : carListeners) {
+                    listener.onStop(true);
+                }
+            }
+
+            @Override
+            public void onFail(VolleyError error) {
+                for (CarListener listener : carListeners) {
+                    listener.onStop(false);
+                }
+            }
+        });
     }
 
     @Override
@@ -189,7 +172,22 @@ public class FordCar implements Car {
 
     @Override
     public void unlock() {
-        return;
+        apiRequest.vehicleActionRequest(vin, "doors/lock", Request.Method.DELETE, new VolleyCallBack() {
+            @Override
+            public void onSuccess(JSONObject json) {
+                for (CarListener listener : carListeners) {
+                    listener.onUnlock(true);
+                }
+            }
+
+            @Override
+            public void onFail(VolleyError error) {
+                for (CarListener listener : carListeners) {
+                    listener.onUnlock(false);
+                }
+            }
+        });
+
     }
 
     public void addListener(CarListener listener) {

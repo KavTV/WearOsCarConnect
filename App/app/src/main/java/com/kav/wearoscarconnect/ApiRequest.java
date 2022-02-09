@@ -1,6 +1,7 @@
 package com.kav.wearoscarconnect;
 
 import android.content.Context;
+import android.os.Handler;
 import android.os.VibrationEffect;
 import android.util.Log;
 import android.widget.Toast;
@@ -169,10 +170,22 @@ public class ApiRequest {
                         callBack.onSuccess(json);
                         return;
                     } else {
-                        checkVehicleStatus(vin, action, commandId, callBack, attempts + 1);
+                        Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                checkVehicleStatus(vin, action, commandId, callBack, attempts + 1);
+                            }
+                        }, 3000);
                     }
                 } catch (Exception e) {
-                    checkVehicleStatus(vin, action, commandId, callBack, attempts + 1);
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            checkVehicleStatus(vin, action, commandId, callBack, attempts + 1);
+                        }
+                    }, 3000);
                 }
             }
 
