@@ -36,14 +36,12 @@ public class AuthClient {
         this.region = region;
     }
 
-//    @Override
-//    public int onStartCommand(Intent intent, int flags, int startId) {
-//
-//
-//        return START_NOT_STICKY;
-//    }
-
-
+    /**
+     * Gets the access token from the users credentials
+     * @param username Username for login
+     * @param password Password for login
+     * @param volleyCallBack Gets called when request is done
+     */
     public void getAccessTokenFromCredentials(String username, String password, VolleyCallBack volleyCallBack) {
 
         //This request does not work when using jsonobjectrequest
@@ -107,6 +105,11 @@ public class AuthClient {
         NetworkRequests.getInstance(ctx).addToRequestQueue(stringRequest);
     }
 
+    /**
+     * Get an access token for the car by using the token from the get token from credentials
+     * @param token Token from get token from credentials
+     * @param volleyCallBack Gets called when request is done
+     */
     private void getCarAccessToken(String token, VolleyCallBack volleyCallBack) {
         Map<String, String> params = new HashMap<String, String>();
         params.put("code", token);
@@ -158,6 +161,11 @@ public class AuthClient {
 
     }
 
+    /**
+     * Get a new access token from the refresh token
+     * @param refreshToken The refresh token used to get the new access tokenn
+     * @param volleyCallBack Gets called when request is done
+     */
     public void getAccessTokenFromRefreshToken(String refreshToken, VolleyCallBack volleyCallBack){
         Map<String, String> params = new HashMap<String, String>();
         params.put("refresh_token", refreshToken);

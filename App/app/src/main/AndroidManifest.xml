@@ -3,9 +3,9 @@
     package="com.kav.wearoscarconnect">
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <uses-feature android:name="android.hardware.type.watch" />
 
@@ -41,6 +41,20 @@
 
         </activity>
         <activity android:name=".LoggedInActivity" />
+
+        <service
+            android:name="com.kav.wearoscarconnect.tiles.ActionTileService"
+            android:label="CarActions"
+            android:description="@string/tile_description"
+            android:icon="@drawable/ic_engine"
+            android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.wear.tiles.action.BIND_TILE_PROVIDER" />
+            </intent-filter>
+            <meta-data android:name="androidx.wear.tiles.PREVIEW"
+                android:resource="@drawable/ic_engine" />
+        </service>
     </application>
 
 </manifest>

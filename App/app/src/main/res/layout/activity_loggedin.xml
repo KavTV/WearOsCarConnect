@@ -43,14 +43,21 @@
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:background="@drawable/unlockedbutton"
-                    android:layout_marginHorizontal="10dp"/>
+                    android:layout_marginHorizontal="3dp"/>
+
+                <ImageButton
+                    android:id="@+id/motorStartButton"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/enginebutton"
+                    android:layout_marginHorizontal="3dp"/>
 
                 <ImageButton
                     android:id="@+id/lockButton"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:background="@drawable/lockedlockbutton"
-                    android:layout_marginHorizontal="10dp"/>
+                    android:layout_marginHorizontal="3dp"/>
 
             </LinearLayout>
             <ImageView

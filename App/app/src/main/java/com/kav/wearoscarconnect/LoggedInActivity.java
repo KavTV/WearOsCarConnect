@@ -21,6 +21,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 
 import com.kav.wearoscarconnect.fordmodels.FordVehicleStatus;
+import com.kav.wearoscarconnect.interfaces.CarInformation;
 import com.kav.wearoscarconnect.interfaces.CarListener;
 import com.kav.wearoscarconnect.models.AccessToken;
 import com.kav.wearoscarconnect.models.FordCar;
@@ -31,6 +32,7 @@ public class LoggedInActivity extends Activity implements CarListener {
 
     ImageButton unlockButton;
     ImageButton lockButton;
+    ImageButton engineStartButton;
     ImageView checkmark;
 
     @Override
@@ -43,13 +45,20 @@ public class LoggedInActivity extends Activity implements CarListener {
 
         AccessToken ac = new AccessToken(extras.getString("accessTokenValue"), (Calendar) extras.getParcelable("accessTokenExpire"), extras.getString("accessTokenRefresh"));
 
-        //Since we only got one brand of car, we will just create it here.
-        SelectedCar.car = new FordCar(this, extras.getString("vin"), ac);
+        //If we got different car brands in the future.
+        switch (extras.getString("SelectedCarBrand")) {
+            case "Ford":
+                SelectedCar.car = new FordCar(this, extras.getString("vin"), ac);
+                break;
+        }
+
+        //Add this activity as a listener
         SelectedCar.car.addListener(this);
 
         Button statusButton = findViewById(R.id.statusButton);
         unlockButton = findViewById(R.id.unlockButton);
         lockButton = findViewById(R.id.lockButton);
+        engineStartButton = findViewById(R.id.motorStartButton);
         checkmark = findViewById(R.id.checkmarkView);
 
         statusButton.setOnClickListener(new View.OnClickListener() {
@@ -61,6 +70,7 @@ public class LoggedInActivity extends Activity implements CarListener {
 
         unlockButton.setOnLongClickListener(longClickListener);
         lockButton.setOnLongClickListener(longClickListener);
+        engineStartButton.setOnLongClickListener(longClickListener);
         checkmark.setOnDragListener(dragListener);
     }
 
@@ -92,6 +102,9 @@ public class LoggedInActivity extends Activity implements CarListener {
                     case R.id.unlockButton:
                         unlockCar();
                         break;
+                    case R.id.motorStartButton:
+                        startCar();
+                        break;
                 }
 
             }
@@ -114,6 +127,7 @@ public class LoggedInActivity extends Activity implements CarListener {
     public void lockCar() {
         SelectedCar.car.lock();
     }
+    public void startCar(){SelectedCar.car.start();}
 
     private void vibrateWithMessage(String message) {
         DisplayMessageHandler.displayToastMessageVibration(message);
@@ -122,7 +136,7 @@ public class LoggedInActivity extends Activity implements CarListener {
 
     //region CarListener interface
     @Override
-    public void onStatusChanged(FordVehicleStatus obj) {
+    public void onStatusChanged(CarInformation obj) {
         //TODO: Could change the image to a car with doors open if car is unlocked, etc.
     }
 
@@ -133,22 +147,43 @@ public class LoggedInActivity extends Activity implements CarListener {
 
     @Override
     public void onStart(boolean started) {
-        vibrateWithMessage("Vehicle started");
+        if(started){
+            vibrateWithMessage("Vehicle started");
+        }
+        else{
+            vibrateWithMessage("Failed to start vehicle");
+        }
+
     }
 
     @Override
     public void onStop(boolean stopped) {
-        vibrateWithMessage("Vehicle stopped");
+        if(stopped){
+            vibrateWithMessage("Vehicle stopped");
+        }
+        else{
+            vibrateWithMessage("Failed to stop vehicle");
+        }
     }
 
     @Override
     public void onLock(boolean locked) {
-        vibrateWithMessage("Vehicle locked");
+        if(locked){
+            vibrateWithMessage("Vehicle locked");
+        }
+        else{
+            vibrateWithMessage("Failed to lock vehicle");
+        }
     }
 
     @Override
     public void onUnlock(boolean unlocked) {
-        vibrateWithMessage("Vehicle unlocked");
+        if(unlocked){
+            vibrateWithMessage("Vehicle unlocked");
+        }
+        else{
+            vibrateWithMessage("Failed to unlock vehicle");
+        }
     }
     //endregion
 }

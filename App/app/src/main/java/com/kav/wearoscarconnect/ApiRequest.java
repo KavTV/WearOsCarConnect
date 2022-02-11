@@ -31,6 +31,12 @@ public class ApiRequest {
         this.authClient = new AuthClient(ctx, SavedSettings.clientId, SavedSettings.region);
     }
 
+    /**
+     * Make a request with volley
+     * @param url the url the request should be sent to
+     * @param method the method the request should use
+     * @param callBack the callback for when the request is done.
+     */
     public void request(String url, int method, final VolleyCallBack callBack) {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (method, url, null, new Response.Listener<JSONObject>() {
@@ -78,6 +84,10 @@ public class ApiRequest {
         NetworkRequests.getInstance(ctx).addToRequestQueue(jsonObjectRequest);
     }
 
+    /**
+     * Regain access by getting a new auth token from the refresh token
+     * @param callBack gets called when the request is done
+     */
     private void regainAccess(VolleyCallBack callBack) {
         //If the user gets the access denied message, we just need to get a new access token.
         authClient.getAccessTokenFromRefreshToken(accessToken.refreshToken, new VolleyCallBack() {
@@ -106,28 +116,12 @@ public class ApiRequest {
     }
 
     /**
-     * Get response status, oven tho the reqeuest returns 200 OK
-     * The response could still be 401 or 400 if user is not allowed to get info about that vehicle
-     *
-     * @param json the json request
-     * @return true if response code is bad, 400,401
+     * Used to send vehicle action requests, like lock doors, or start engine
+     * @param vin VIN number of vehicle
+     * @param action The action to do, like "engine/start"
+     * @param method HTTP method
+     * @param callBack Gets called when the request is done
      */
-    private boolean checkBadResponse(JSONObject json) {
-        try {
-            //Get response status, oven tho the reqeuest returns 200 OK
-            //The response could still be 401 or 400 if user is not allowed to get info about that vehicle
-            int responseStatus = Integer.parseInt(json.getString("status"));
-
-            if (responseStatus == 400 || responseStatus == 401) {
-                DisplayMessageHandler.displayToastMessage("No access to vehicle (VIN)");
-                return true;
-            }
-            return false;
-        } catch (Exception e) {
-            return true;
-        }
-    }
-
     public void vehicleActionRequest(String vin, String action, int method, VolleyCallBack callBack) {
         String url = "https://usapi.cv.ford.com/api/vehicles/v2/" + vin + "/" + action;
 
@@ -139,6 +133,9 @@ public class ApiRequest {
                     if (!commandId.isEmpty()) {
                         checkVehicleStatus(vin, action, commandId, callBack, 1);
                     }
+                    else{
+                        onFail(new VolleyError());
+                    }
                 } catch (Exception e) {
                     DisplayMessageHandler.displayToastMessage("Something went wrong with action");
                 }
@@ -146,15 +143,22 @@ public class ApiRequest {
 
             @Override
             public void onFail(VolleyError error) {
-
+                callBack.onFail(error);
             }
         });
     }
 
+    /**
+     * When an action is done, check if the action is executed successfully
+     * @param vin VIN number of vehicle
+     * @param action The action to do, like "engine/start"
+     * @param commandId The commandId that is received from the vehicle action request
+     * @param callBack Gets called when the request is done
+     * @param attempts The amount of attempts tried to check for status
+     */
     public void checkVehicleStatus(String vin, String action, String commandId, VolleyCallBack callBack, int attempts) {
-        //If vehicle status has not been returned within the attemps, then the request is timed out
+        //If vehicle status has not been returned within the attempts, then the request is timed out
         if (attempts >= 20) {
-            DisplayMessageHandler.displayToastMessageVibration("Failed action", VibrationEffect.EFFECT_DOUBLE_CLICK);
             callBack.onFail(new VolleyError());
             return;
         }

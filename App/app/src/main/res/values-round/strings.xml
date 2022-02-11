@@ -1,3 +1,4 @@
 <resources>
     <string name="hello_world">Hello Round World!</string>
+    <string name="tile_description">Quick actions for your car</string>
 </resources>

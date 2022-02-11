@@ -12,6 +12,7 @@ import androidx.wear.widget.WearableRecyclerView;
 import com.kav.wearoscarconnect.adapters.InformationListAdapter;
 import com.kav.wearoscarconnect.fordmodels.FordVehicleStatus;
 import com.kav.wearoscarconnect.fordmodels.Vehiclestatus;
+import com.kav.wearoscarconnect.interfaces.CarInformation;
 import com.kav.wearoscarconnect.interfaces.CarListener;
 import com.kav.wearoscarconnect.models.StatusListItem;
 
@@ -86,8 +87,7 @@ public class InformationActivity extends Activity implements CarListener {
     }
 
     @Override
-    public void onStatusChanged(FordVehicleStatus obj) {
-        Vehiclestatus vehicleStat = obj.getVehiclestatus();
+    public void onStatusChanged(CarInformation carInfo) {
 
         statusListItem.clear();
 
@@ -95,7 +95,7 @@ public class InformationActivity extends Activity implements CarListener {
             //GET THE TIME BETWEEN NOW AND LAST REFRESH
             DateTimeFormatter df = DateTimeFormatter.ofPattern("MM-dd-yyyy HH:mm:ss");
             LocalDateTime ldt1 = LocalDateTime.now();
-            LocalDateTime ldt2 = LocalDateTime.parse(vehicleStat.getLastRefresh(),df);
+            LocalDateTime ldt2 = LocalDateTime.parse(carInfo.getLastRefresh(),df);
             Duration d = Duration.between(ldt2,ldt1);
             statusListItem.add(new StatusListItem(R.drawable.ic_history, String.format("%d hours ago", d.toHours())));
         }
@@ -104,14 +104,14 @@ public class InformationActivity extends Activity implements CarListener {
         }
 
         //Show specific icon depending on door lock status
-        if(vehicleStat.getLockStatus().getValue().equals("LOCKED")){
-            statusListItem.add(new StatusListItem(R.drawable.ic_closedlock_white, vehicleStat.getLockStatus().getValue()));
+        if(carInfo.getLockStatus().equals("LOCKED")){
+            statusListItem.add(new StatusListItem(R.drawable.ic_closedlock_white, carInfo.getLockStatus()));
         }
         else{
-            statusListItem.add(new StatusListItem(R.drawable.ic_openlock_white, vehicleStat.getLockStatus().getValue()));
+            statusListItem.add(new StatusListItem(R.drawable.ic_openlock_white, carInfo.getLockStatus()));
         }
-        statusListItem.add(new StatusListItem(R.drawable.ic_gas, vehicleStat.getFuel().getDistanceToEmpty().toString()));
-        statusListItem.add(new StatusListItem(R.drawable.ic_wind, vehicleStat.getDieselSystemStatus().getUreaRange().getValue()));
+        statusListItem.add(new StatusListItem(R.drawable.ic_gas, Double.toString(carInfo.getDistanceLeft())));
+        statusListItem.add(new StatusListItem(R.drawable.ic_wind, carInfo.getAdblueLeft()));
 
         //Tell that the list needs to be updated
         adapter.notifyDataSetChanged();

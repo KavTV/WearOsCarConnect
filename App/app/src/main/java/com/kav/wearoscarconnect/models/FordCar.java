@@ -2,6 +2,7 @@ package com.kav.wearoscarconnect.models;
 
 
 import android.content.Context;
+import android.os.VibrationEffect;
 import android.util.Log;
 
 import com.android.volley.Request;
