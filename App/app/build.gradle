@@ -25,9 +25,17 @@ android {
     }
 }
 
+apply plugin: 'com.android.application'
+
+// Add this line
+apply plugin: 'com.google.gms.google-services'
+
+apply plugin: 'com.google.firebase.crashlytics'
+
 dependencies {
 
     implementation 'com.google.android.gms:play-services-wearable:17.1.0'
+
     implementation 'androidx.percentlayout:percentlayout:1.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
@@ -49,4 +57,9 @@ dependencies {
 
     // Use to fetch tiles from a tile provider in your tests
     testImplementation "androidx.wear.tiles:tiles-testing:1.1.0-alpha02"
+
+    // Firebase
+    implementation platform('com.google.firebase:firebase-bom:29.3.0')
+    implementation 'com.google.firebase:firebase-crashlytics'
+    implementation 'com.google.firebase:firebase-analytics'
 }

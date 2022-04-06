@@ -65,7 +65,7 @@ public class ApiRequest {
 
                                 @Override
                                 public void onFail(VolleyError error) {
-
+                                    callBack.onFail(error);
                                 }
                             });
                         }

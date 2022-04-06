@@ -19,11 +19,21 @@ public class DisplayMessageHandler {
         Toast.makeText(ctx, message,Toast.LENGTH_SHORT).show();
     }
     public static void displayToastMessageVibration(String message){
-        vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK));
-        Toast.makeText(ctx, message,Toast.LENGTH_SHORT).show();
+        try {
+            Toast.makeText(ctx, message,Toast.LENGTH_SHORT).show();
+            vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK));
+        }catch (Exception e){
+
+        }
+
     }
     public static void displayToastMessageVibration(String message, int effect){
-        vibrator.vibrate(VibrationEffect.createPredefined(effect));
-        Toast.makeText(ctx, message,Toast.LENGTH_SHORT).show();
+        try {
+            Toast.makeText(ctx, message,Toast.LENGTH_SHORT).show();
+            vibrator.vibrate(VibrationEffect.createPredefined(effect));
+        }catch (Exception e){
+
+        }
+
     }
 }

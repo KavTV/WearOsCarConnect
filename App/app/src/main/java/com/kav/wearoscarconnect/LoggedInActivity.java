@@ -39,6 +39,8 @@ public class LoggedInActivity extends Activity implements CarListener {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        DisplayMessageHandler.setup(this);
+
         setContentView(R.layout.activity_loggedin);
 
         Bundle extras = getIntent().getExtras();
@@ -120,14 +122,17 @@ public class LoggedInActivity extends Activity implements CarListener {
     }
 
     public void unlockCar() {
-//        SelectedCar.car.status();
+        vibrateWithMessage("Unlocking car");
         SelectedCar.car.unlock();
     }
 
     public void lockCar() {
+        vibrateWithMessage("Locking car");
         SelectedCar.car.lock();
     }
-    public void startCar(){SelectedCar.car.start();}
+    public void startCar(){
+        vibrateWithMessage("Starting car");
+        SelectedCar.car.start();}
 
     private void vibrateWithMessage(String message) {
         DisplayMessageHandler.displayToastMessageVibration(message);
