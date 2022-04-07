@@ -2,25 +2,18 @@ package com.kav.wearoscarconnect;
 
 import android.app.Activity;
 import android.content.ClipData;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Region;
-import android.media.Image;
 import android.os.Bundle;
-import android.os.VibrationEffect;
-import android.os.Vibrator;
-import android.util.Log;
+
 import android.view.DragEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
+import androidx.activity.ComponentActivity;
 import androidx.annotation.Nullable;
 
-import com.kav.wearoscarconnect.fordmodels.FordVehicleStatus;
 import com.kav.wearoscarconnect.interfaces.CarInformation;
 import com.kav.wearoscarconnect.interfaces.CarListener;
 import com.kav.wearoscarconnect.models.AccessToken;

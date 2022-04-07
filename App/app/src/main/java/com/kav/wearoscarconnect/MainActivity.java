@@ -56,7 +56,8 @@ public class MainActivity extends Activity {
 
             if (!vin.isEmpty()) {
                 String carBrand = SharedPreferencesHandler.getCarBrand();
-                loggedInActivity(retrievedToken, vin, carBrand);
+//                loggedInActivity(retrievedToken, vin, carBrand);
+                loggedInCompose();
             }
         }
 
@@ -141,6 +142,15 @@ public class MainActivity extends Activity {
         intent.putExtra("accessTokenRefresh", accessToken.refreshToken);
         intent.putExtra("vin", vin);
         intent.putExtra("SelectedCarBrand", carBrand);
+
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
+
+    private void loggedInCompose(){
+        //Start the logged in activity where the user can control vehicle
+        Intent intent = new Intent(this, LoggedInCompose.class);
+
 
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
