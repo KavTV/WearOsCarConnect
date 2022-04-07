@@ -27,20 +27,20 @@ import java.time.Duration
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-class LoggedInCompose : ComponentActivity(), CarListener {
+class InformationComposeActivity : ComponentActivity(), CarListener {
 
     private val statusList =  mutableStateListOf<ChipInformation>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //Init stuff
-//        statusList.add(ChipInformation("Loading...", R.drawable.ic_refresh))
+        //Init
+
         //Add this activity to listener to get responses
         SelectedCar.car.addListener(this)
 
         //We want to get the newest information
-//        SelectedCar.car.statusRefresh()
+        SelectedCar.car.statusRefresh()
         SelectedCar.car.status()
 
         //Load the design to screen
@@ -54,7 +54,9 @@ class LoggedInCompose : ComponentActivity(), CarListener {
     }
 
     override fun onStatusChanged(carInfo: CarInformation?) {
+        //Clear list when adding the new items
         statusList.clear()
+
         try {
             //GET THE TIME BETWEEN NOW AND LAST REFRESH
             val df = DateTimeFormatter.ofPattern("MM-dd-yyyy HH:mm:ss")

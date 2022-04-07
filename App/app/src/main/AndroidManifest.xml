@@ -16,7 +16,7 @@
         android:supportsRtl="true"
         android:theme="@android:style/Theme.DeviceDefault">
         <activity
-            android:name=".LoggedInCompose"
+            android:name=".InformationComposeActivity"
             android:exported="false"
             android:label="@string/title_activity_logged_in_compose" />
 

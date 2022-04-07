@@ -1,32 +1,23 @@
 package com.kav.wearoscarconnect;
 
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.VibrationEffect;
-import android.os.Vibrator;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.wear.tiles.manager.TileUiClient;
-import androidx.wear.widget.WearableLinearLayoutManager;
-import androidx.wear.widget.WearableRecyclerView;
 
 import com.android.volley.VolleyError;
 import com.kav.wearoscarconnect.databinding.ActivityMainBinding;
-import com.kav.wearoscarconnect.fordmodels.FordVehicleStatus;
-import com.kav.wearoscarconnect.interfaces.CarListener;
 import com.kav.wearoscarconnect.interfaces.VolleyCallBack;
 import com.kav.wearoscarconnect.models.AccessToken;
 import com.kav.wearoscarconnect.models.FordCar;
-import com.kav.wearoscarconnect.tiles.ActionTileService;
 
 import org.json.JSONObject;
 
@@ -63,8 +54,7 @@ public class MainActivity extends Activity {
                         break;
                 }
 
-//                loggedInActivity(retrievedToken, vin, carBrand);
-                loggedInCompose();
+                loggedInActivity(retrievedToken, vin, carBrand);
             }
         }
 
@@ -149,15 +139,6 @@ public class MainActivity extends Activity {
         intent.putExtra("accessTokenRefresh", accessToken.refreshToken);
         intent.putExtra("vin", vin);
         intent.putExtra("SelectedCarBrand", carBrand);
-
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-    }
-
-    private void loggedInCompose(){
-        //Start the logged in activity where the user can control vehicle
-        Intent intent = new Intent(this, LoggedInCompose.class);
-
 
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

@@ -38,15 +38,6 @@ public class LoggedInActivity extends Activity implements CarListener {
 
         Bundle extras = getIntent().getExtras();
 
-        AccessToken ac = new AccessToken(extras.getString("accessTokenValue"), (Calendar) extras.getParcelable("accessTokenExpire"), extras.getString("accessTokenRefresh"));
-
-        //If we got different car brands in the future.
-        switch (extras.getString("SelectedCarBrand")) {
-            case "Ford":
-                SelectedCar.car = new FordCar(this, extras.getString("vin"), ac);
-                break;
-        }
-
         //Add this activity as a listener
         SelectedCar.car.addListener(this);
 
@@ -110,7 +101,7 @@ public class LoggedInActivity extends Activity implements CarListener {
 
     public void infoActivity() {
         //Open up the informaiton activity where
-        Intent intent = new Intent(this, InformationActivity.class);
+        Intent intent = new Intent(this, InformationComposeActivity.class);
         startActivity(intent);
     }
 
