@@ -11,6 +11,7 @@ import androidx.wear.compose.material.*
 
 @Composable
 fun ChipExample(
+        message: String,
         modifier: Modifier = Modifier,
         iconModifier: Modifier = Modifier,
         icon: Painter
@@ -20,7 +21,7 @@ fun ChipExample(
             onClick = { /* ... */ },
             label = {
                 Text(
-                        text = "5 minute Meditation",
+                        text = message,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                 )

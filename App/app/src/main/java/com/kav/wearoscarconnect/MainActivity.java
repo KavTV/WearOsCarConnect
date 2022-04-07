@@ -56,6 +56,13 @@ public class MainActivity extends Activity {
 
             if (!vin.isEmpty()) {
                 String carBrand = SharedPreferencesHandler.getCarBrand();
+                //If different car brands is added in the future.
+                switch (carBrand) {
+                    case "Ford":
+                        SelectedCar.car = new FordCar(this, vin, retrievedToken);
+                        break;
+                }
+
 //                loggedInActivity(retrievedToken, vin, carBrand);
                 loggedInCompose();
             }
