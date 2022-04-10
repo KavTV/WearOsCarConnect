@@ -11,7 +11,7 @@ import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import androidx.wear.tiles.manager.TileUiClient;
+//import androidx.wear.tiles.manager.TileUiClient;
 
 import com.android.volley.VolleyError;
 import com.kav.wearoscarconnect.databinding.ActivityMainBinding;
@@ -23,7 +23,7 @@ import org.json.JSONObject;
 
 public class MainActivity extends Activity {
 
-    private TileUiClient tileUiClient;
+//    private TileUiClient tileUiClient;
 
     private TextView mTextView;
     private ActivityMainBinding binding;
@@ -103,6 +103,14 @@ public class MainActivity extends Activity {
                     //Store token and vehicle vin
                     SharedPreferencesHandler.storeFordAccessToken(accessToken);
                     SharedPreferencesHandler.storeVIN(vin.getText().toString());
+
+                    //INIT selectedCar
+                    String carBrand = SharedPreferencesHandler.getCarBrand();
+                    switch (carBrand) {
+                        case "Ford":
+                            SelectedCar.car = new FordCar(ctx, vin.getText().toString(), accessToken);
+                            break;
+                    }
 
                     loggedInActivity(accessToken, vin.getText().toString(), "Ford");
                 } catch (Exception e) {

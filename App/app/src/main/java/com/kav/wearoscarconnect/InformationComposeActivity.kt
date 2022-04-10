@@ -55,8 +55,8 @@ class InformationComposeActivity : ComponentActivity(), CarListener {
     }
 
     override fun onStatusChanged(carInfo: CarInformation?) {
-        //Clear list when adding the new items
-        statusList.clear()
+
+        val newStatusList = mutableListOf<ChipInformation>()
 
         try {
             //GET THE TIME BETWEEN NOW AND LAST REFRESH
@@ -64,7 +64,7 @@ class InformationComposeActivity : ComponentActivity(), CarListener {
             val ldt1 = LocalDateTime.now()
             val ldt2 = LocalDateTime.parse(carInfo!!.lastRefresh, df)
             val d = Duration.between(ldt2, ldt1)
-            statusList.add(
+            newStatusList.add(
                 ChipInformation(String.format("%d hours ago", d.toHours()),R.drawable.ic_history)
             )
         } catch (e: Exception) {
@@ -72,19 +72,25 @@ class InformationComposeActivity : ComponentActivity(), CarListener {
 
         //Show specific icon depending on door lock status
         if (carInfo!!.lockStatus == "LOCKED") {
-            statusList.add(ChipInformation(carInfo.lockStatus,R.drawable.ic_closedlock_white))
+            newStatusList.add(ChipInformation(carInfo.lockStatus,R.drawable.ic_closedlock_white))
         } else {
-            statusList.add(ChipInformation(carInfo.lockStatus, R.drawable.ic_openlock_white ))
+            newStatusList.add(ChipInformation(carInfo.lockStatus, R.drawable.ic_openlock_white ))
         }
 
         //Add distance left for car
-        statusList.add(
+        newStatusList.add(
             ChipInformation(
                 carInfo.distanceLeft.toString(),
                 R.drawable.ic_gas
             )
         )
-        statusList.add(ChipInformation(carInfo.adblueLeft, R.drawable.ic_wind))
+
+        //Adblue left
+        newStatusList.add(ChipInformation(carInfo.adblueLeft, R.drawable.ic_wind))
+
+        //Clear list when adding the new items
+        statusList.clear()
+        statusList.addAll(newStatusList)
     }
 
     override fun onDetails() {
@@ -121,7 +127,10 @@ class InformationComposeActivity : ComponentActivity(), CarListener {
 fun AppDesign(statusList: MutableList<ChipInformation>) {
     val listState = rememberScalingLazyListState()
     val coroutineScope = rememberCoroutineScope()
+
+    //Use remember functions for better performance
     val focusRequester = remember { FocusRequester() }
+    val rememberStatusList = remember {statusList}
 
     //Used to put time text and position indicator
     Scaffold(
@@ -167,8 +176,8 @@ fun AppDesign(statusList: MutableList<ChipInformation>) {
             verticalArrangement = Arrangement.Center,
             state = listState
         ) {
-            statusList.forEach{
-                item { ChipExample(it.Message,contentModifier, iconModifier, painterResource(id = it.Drawable)) }
+            items(items = rememberStatusList){item ->
+                ChipExample(item.Message,contentModifier, iconModifier, painterResource(id = item.Drawable))
             }
 
         }

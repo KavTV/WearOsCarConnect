@@ -4,6 +4,30 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        debug{
+            def propsFile = rootProject.file('keystore.properties')
+            if (propsFile.exists()) {
+                def props = new Properties()
+                props.load(new FileInputStream(propsFile))
+                storeFile = file(props['storeFile'])
+                storePassword = props['storePassword']
+                keyAlias = props['keyAlias']
+                keyPassword = props['keyPassword']
+            }
+        }
+        release {
+            def propsFile = rootProject.file('keystore.properties')
+            if (propsFile.exists()) {
+                def props = new Properties()
+                props.load(new FileInputStream(propsFile))
+                storeFile = file(props['storeFile'])
+                storePassword = props['storePassword']
+                keyAlias = props['keyAlias']
+                keyPassword = props['keyPassword']
+            }
+        }
+    }
     compileSdk 32
 
     defaultConfig {
@@ -15,13 +39,16 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+        signingConfig signingConfigs.release
 
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     buildFeatures {
@@ -63,7 +90,7 @@ dependencies {
     implementation 'androidx.wear:wear-input:1.1.0'
     implementation 'com.android.volley:volley:1.2.1'
     implementation 'com.google.code.gson:gson:2.8.9'
-    implementation files('C:\\Users\\kaspe\\Downloads/gson-2.8.9')
+
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 
     //Google wear compose
