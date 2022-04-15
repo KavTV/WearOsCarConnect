@@ -25,7 +25,6 @@ public class MainActivity extends Activity {
 
 //    private TileUiClient tileUiClient;
 
-    private TextView mTextView;
     private ActivityMainBinding binding;
     private Button loginButton;
     Context ctx = this;
@@ -47,12 +46,7 @@ public class MainActivity extends Activity {
 
             if (!vin.isEmpty()) {
                 String carBrand = SharedPreferencesHandler.getCarBrand();
-                //If different car brands is added in the future.
-                switch (carBrand) {
-                    case "Ford":
-                        SelectedCar.car = new FordCar(this, vin, retrievedToken);
-                        break;
-                }
+                SelectedCar.car = new FordCar(this, vin, retrievedToken);
 
                 loggedInActivity(retrievedToken, vin, carBrand);
             }
@@ -66,8 +60,6 @@ public class MainActivity extends Activity {
 //        tileUiClient.connect();
 
         loginButton = findViewById(R.id.loginButton);
-
-        mTextView = binding.text;
 
         ScrollView scrollView = findViewById(R.id.loginScrollView);
 
@@ -105,12 +97,7 @@ public class MainActivity extends Activity {
                     SharedPreferencesHandler.storeVIN(vin.getText().toString());
 
                     //INIT selectedCar
-                    String carBrand = SharedPreferencesHandler.getCarBrand();
-                    switch (carBrand) {
-                        case "Ford":
-                            SelectedCar.car = new FordCar(ctx, vin.getText().toString(), accessToken);
-                            break;
-                    }
+                    SelectedCar.car = new FordCar(ctx, vin.getText().toString(), accessToken);
 
                     loggedInActivity(accessToken, vin.getText().toString(), "Ford");
                 } catch (Exception e) {

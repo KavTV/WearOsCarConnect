@@ -38,6 +38,16 @@ public class LoggedInActivity extends Activity implements CarListener {
 
         Bundle extras = getIntent().getExtras();
 
+        //Add the car if null
+        if(SelectedCar.car == null){
+            AccessToken ac = new AccessToken(
+                    extras.getString("accessTokenValue"),
+                    (Calendar) extras.getParcelable("accessTokenExpire"),
+                    extras.getString("accessTokenRefresh"));
+
+            SelectedCar.car = new FordCar(this, extras.getString("vin"), ac);
+        }
+
         //Add this activity as a listener
         SelectedCar.car.addListener(this);
 
